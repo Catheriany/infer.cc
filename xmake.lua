@@ -29,6 +29,13 @@ option("ascend-npu")
     add_defines("ENABLE_ASCEND_NPU")
 option_end()
 
+option("iluvatar-bi")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Enable or disable Iluvatar Bi150 functions")
+    add_defines("ENABLE_ILU_BI")
+option_end()
+
 option("ccl")
     set_default(true)
     set_showmenu(true)
@@ -120,6 +127,44 @@ if has_config("ascend-npu") then
     target_end()
 end
 
+if has_config("iluvatar-bi") then
+    add_defines("ENABLE_ILU_BI")
+    target("iluvatar-bi")
+        set_kind("static")
+        on_install(function (target) end)
+        set_policy("build.cuda.devlink", true)
+
+        set_toolchains("cuda")
+        add_links("cudart")
+        -- Add include dirs
+        add_includedirs("/usr/local/corex/include")
+        add_linkdirs("/usr/local/corex/lib64")
+        add_links("cuda", "cublas", "cudnn", "cudart")
+
+        if is_plat("windows") then
+            add_cuflags("-Xcompiler=/utf-8", "--expt-relaxed-constexpr", "--allow-unsupported-compiler")
+        else
+            add_cuflags("-Xcompiler=-fPIC")
+            add_culdflags("-Xcompiler=-fPIC")
+        end
+        add_cxflags("-fPIC")
+
+        set_languages("cxx17")
+        add_files("src/runtime/iluvatar/*.cc")
+        if has_config("ccl") then
+            -- Check if NCCL_ROOT is defined
+            local nccl_root = os.getenv("NCCL_ROOT")
+            if nccl_root then
+                add_includedirs(nccl_root .. "/include")
+                add_links(nccl_root .. "/lib/libnccl.so")
+            else
+                add_links("nccl") -- Fall back to default nccl linking
+            end
+            add_files("src/ccl/iluvatar/*.cc")
+        end
+    target_end()
+end
+
 target("infinirt")
     set_kind("shared")
 
@@ -129,7 +174,9 @@ target("infinirt")
     if has_config("ascend-npu") then
         add_deps("ascend-npu")
     end
-
+    if has_config("iluvatar-bi") then
+        add_deps("iluvatar-bi")
+    end
     set_languages("cxx17")
     add_files("src/runtime/runtime.cc")
 
@@ -147,7 +194,11 @@ target("infiniccl")
     if has_config("ascend-npu") then
         add_deps("ascend-npu")
     end
+    if has_config("iluvatar-bi") then
+        add_deps("iluvatar-bi")
+    end
     set_languages("cxx17")
+    add_links("pthread")
     add_files("src/ccl/infiniccl.cc")
 
     set_installdir(infini_root)
@@ -161,6 +212,7 @@ target("infiniinfer")
     add_deps("infinirt")
     add_deps("infiniccl")
     add_links(infini_root .. "/lib/libinfiniop.so")
+    add_links("pthread")
     set_languages("cxx17")
     add_files("src/models/*.cc")
     add_files("src/tensor/*.cc")
@@ -183,8 +235,12 @@ target("infini_infer_test")
     if has_config("ascend-npu") then
         add_deps("ascend-npu")
     end
+    if has_config("iluvatar-bi") then
+        add_deps("iluvatar-bi")
+    end
     add_cxflags("-g", "-O0")
     add_ldflags("-g")
+    add_links("pthread")
     add_files("test/test.cc")
     add_files("test/tensor/*.cc")
     add_files("src/runtime/runtime.cc")
