@@ -35,6 +35,7 @@ class DeviceType(ctypes.c_int):
     DEVICE_TYPE_CUDA = 1
     DEVICE_TYPE_CAMBRICON = 2
     DEVICE_TYPE_ASCEND = 3
+    DEVICE_TYPE_ILU = 4
 
 device_type = DeviceType.DEVICE_TYPE_CPU
 if sys.argv[1] == "--cpu":
@@ -45,6 +46,8 @@ elif sys.argv[1] == "--cambricon":
     device_type = DeviceType.DEVICE_TYPE_CAMBRICON
 elif sys.argv[1] == "--ascend":
     device_type = DeviceType.DEVICE_TYPE_ASCEND
+elif sys.argv[1] == "--ilu":
+    device_type = DeviceType.DEVICE_TYPE_ILU
 else:
     print("Usage: python test_llama.py [--cpu | --cuda | --cambricon | --ascend] <path/to/model_dir>")
     sys.exit(1)

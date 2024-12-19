@@ -107,7 +107,6 @@ infinirtStatus_t synchronizeIluEvent(infinirtEvent_t event) {
 }
 
 infinirtStatus_t mallocIlu(void **pMemory, uint32_t deviceId, size_t size) {
-    printf("line 110\n");
     SWITCH_DEVICE(deviceId);
     void *cuda_ptr;
     CUDA_CALL(cudaMalloc(&cuda_ptr, size));
@@ -117,7 +116,6 @@ infinirtStatus_t mallocIlu(void **pMemory, uint32_t deviceId, size_t size) {
 
 infinirtStatus_t mallocIluAsync(void **pMemory, uint32_t deviceId, size_t size,
                                 infinirtStream_t stream) {
-    printf("line 120\n");
     SWITCH_DEVICE(deviceId);
     void *cuda_ptr;
     CUDA_CALL(cudaMallocAsync(&cuda_ptr, size, getIluStream(stream)));
