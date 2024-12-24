@@ -9,14 +9,13 @@
     { return INFINICCL_STATUS_DEVICE_NOT_SUPPORTED; }
 #endif
 
-infinicclStatus_t infinicclCudaCommInitAll(
+infinicclStatus_t infinicclIluCommInitAll(
     infinicclComm_t *comms, unsigned int numDevices,
     unsigned int const *deviceIDs) IMPL_WITH_ILU infinicclStatus_t
-    infinicclCudaCommDestroy(infinicclComm_t comm)
+    infinicclIluCommDestroy(infinicclComm_t comm)
         IMPL_WITH_ILU infinicclStatus_t
-    infinicclCudaAllReduceSum(infinicclComm_t comm, void *sendbuf,
-                              void *recvbuf, size_t count,
-                              InfiniDataType_t datatype,
-                              infinirtStream_t stream) IMPL_WITH_ILU
+    infinicclIluAllReduceSum(infinicclComm_t comm, void *sendbuf, void *recvbuf,
+                             size_t count, InfiniDataType_t datatype,
+                             infinirtStream_t stream) IMPL_WITH_ILU
 
 #endif /* INFINICCL_ILU_H_ */

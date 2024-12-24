@@ -42,27 +42,30 @@ inline ncclComm_t getNcclComm(infinicclComm_t comm) {
     return static_cast<ncclComm_t>(comm->comm);
 }
 
-infinicclStatus_t infinicclCudaCommInitAll(infinicclComm_t *comms,
-                                           unsigned int numDevices, unsigned int const *deviceIDs) {
+infinicclStatus_t infinicclIluCommInitAll(infinicclComm_t *comms,
+                                          unsigned int numDevices,
+                                          unsigned int const *deviceIDs) {
     std::vector<ncclComm_t> ncclComms(numDevices);
-    NCCL_CALL(ncclCommInitAll(ncclComms.data(), numDevices, (int const *)deviceIDs));
+    NCCL_CALL(
+        ncclCommInitAll(ncclComms.data(), numDevices, (int const *)deviceIDs));
 
     for (int i = 0; i < numDevices; i++) {
-        comms[i] = new InfiniComm{DEVICE_NVIDIA, deviceIDs[i], (void *)(ncclComms[i])};
+        comms[i] =
+            new InfiniComm{DEVICE_ILU, deviceIDs[i], (void *)(ncclComms[i])};
     }
     return INFINICCL_STATUS_SUCCESS;
 }
 
-infinicclStatus_t infinicclCudaCommDestroy(infinicclComm_t comm) {
+infinicclStatus_t infinicclIluCommDestroy(infinicclComm_t comm) {
     NCCL_CALL(ncclCommDestroy(getNcclComm(comm)));
     delete comm;
     return INFINICCL_STATUS_SUCCESS;
 }
 
-infinicclStatus_t infinicclCudaAllReduceSum(infinicclComm_t comm, void *sendbuf,
-                                            void *recvbuf, size_t count,
-                                            InfiniDataType_t datatype,
-                                            infinirtStream_t stream) {
+infinicclStatus_t infinicclIluAllReduceSum(infinicclComm_t comm, void *sendbuf,
+                                           void *recvbuf, size_t count,
+                                           InfiniDataType_t datatype,
+                                           infinirtStream_t stream) {
     if (datatype != INFINI_F32 && datatype != INFINI_F16) {
         return INFINICCL_STATUS_BAD_DATATYPE;
     }
