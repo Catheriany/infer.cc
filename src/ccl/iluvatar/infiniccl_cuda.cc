@@ -70,6 +70,7 @@ infinicclStatus_t infinicclIluAllReduceSum(infinicclComm_t comm, void *sendbuf,
         return INFINICCL_STATUS_BAD_DATATYPE;
     }
     SWITCH_DEVICE(comm->deviceID);
+    infinirtStreamSynchronize(stream);
     NCCL_CALL(ncclAllReduce(sendbuf, recvbuf, count, getCudaDtype(datatype),
                             ncclSum, getNcclComm(comm), getCudaStream(stream)));
     return INFINICCL_STATUS_SUCCESS;
